@@ -1,7 +1,7 @@
 
 
 /* From https://codepen.io/t_afif/pen/abKyJNJ Thanks Temani! Great Looking buttons! */
-body {
+.App {
   height: 100vh;
   margin: 0;
   display: flex;
@@ -9,23 +9,54 @@ body {
   align-items: center;
   flex-direction: column;
   gap: 40px;
+  width: 100vw;
   background: #F2DCA2;
 }
 button {
   font-family: system-ui, sans-serif;
-  font-size: 3.5rem;
-  cursor: pointer;
   padding: .1em .6em;
   font-weight: bold;  
   border: none;
-  --c:  orange; /* the color*/
+  background-color:  lightcoral; /* the color*/
+  width: 315px;
+  height: 80px;
+  color: rgba(280,280,280,0.7);
+  font-size: 32px;
+  cursor: pointer;
+}
 
+button:hover {
+  filter: brightness(110%) saturate(120%);
+}
+
+button:disabled:hover {
+  filter: none;
+}
+
+.spelling-char {
+  font-size: 3.5rem;
+}
+
+.spelling-char.incomplete {
+  color: rgba(280,280,280,0.4)
+}
+
+.spelling-char.complete {
+  color: rgba(280,280,280 )
+
+}
+
+button:disabled {
+  cursor: default;
 }
 
 
 
 
 
+.cootie-catcher.closed .inner-flaps {
+  visibility: hidden
+}
 
 
 
@@ -39,20 +70,35 @@ button {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-}
-
-.inner-flaps {
   height:  80%;
   width: 80%;
-  margin-left: 10%;
-  margin-bottom: 10%;
+  position: relative;
+  top: -181px;
+  left: 20px;
+  
 }
 
 .inner-flap {
-  background: gray;
+  background-color: gray;
   height: 50%;
   width: 50%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: end;
+  font-size: 27px;
+  color: rgba(300,300,300, 0.7);
 }
+
+.inner-number {
+  padding-bottom: 7px;
+  padding-right: 14px;
+}
+
+.inner-number.flip-text {
+  padding-left: 14px;
+}
+
+
 
 .open.horizontal .inner-flap {
   -webkit-clip-path:polygon(0 100%, 100% 100%, 100% 10%);
@@ -68,7 +114,8 @@ button {
   z-index: 10;
   position: relative;
   height: 100%;
-  top: -100%;
+  z-index: 0;
+
 }
 
 .outer-flap {
@@ -114,42 +161,19 @@ button {
 }
 
 .inner-flap.bottom-left, .inner-flap.top-right {
-  background: silver;
+  background-color: silver;
 }
 
-.outer-flap.clickable:hover {
-  filter: brightness(110%) saturate(120%)
+.flip-text {
+  -moz-transform: scale(-1, 1);
+  -webkit-transform: scale(-1, 1);
+  -o-transform: scale(-1, 1);
+  -ms-transform: scale(-1, 1);
+  transform: scale(-1, 1);
 }
 
-
-
-
-
-
-
-/* 
-
-button {
-  --c:  orange; /* the color*/
-  
-  box-shadow: 0 0 0 .1em inset var(--c); 
-  --_g: linear-gradient(var(--c) 0 0) no-repeat;
-  background: 
-    var(--_g) calc(var(--_p,0%) - 100%) 0%,
-    var(--_g) calc(200% - var(--_p,0%)) 0%,
-    var(--_g) calc(var(--_p,0%) - 100%) 100%,
-    var(--_g) calc(200% - var(--_p,0%)) 100%;
-  background-size: 50.5% calc(var(--_p,0%)/2 + .5%);
-  outline-offset: .1em;
-  transition: background-size .4s, background-position 0s .4s;
+.clickable:hover {
+  filter: brightness(110%) saturate(120%);
+  cursor: pointer;
+  z-index: 1000;
 }
-button:hover {
-  --_p: 100%;
-  transition: background-position .4s, background-size 0s;
-}
-button:active {
-  box-shadow: 0 0 9e9q inset #0009; 
-  background-color: var(--c);
-  color: #fff;
-} */
-
