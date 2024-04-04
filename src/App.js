@@ -1,24 +1,31 @@
-import logo from './logo.svg';
 import './App.css';
 import { useState, useMemo, useCallback, useEffect } from "react"
 
 function App() {
-  const [gameState, setGameState] = useState("pickAColor") 
+  const storedFortune = localStorage.getItem("fortuneNumber")
+  const storedTomorrow = localStorage.getItem("storedTomorrow")
+
+  const preventNewFortune = storedTomorrow && new Date().getTime() < Number.parseInt(storedTomorrow)
+
+  const [gameState, setGameState] = useState((preventNewFortune) ? "readFortune" : "pickAColor") 
   const [color, setColor] = useState(null)
   const [catcherOpenness, setCatcherOpenness] = useState("closed")
   const [opennessDirection, setOpennessDirection] = useState("vertical")
   const [colorSpellingIndex, setColorSpellingIndex] = useState(0)
   const [countdownNumber, setCountdownNumber] = useState(null)
-  const [fortuneNumber, setFortuneNumber] = useState(null)
+  const [fortuneNumber, setFortuneNumber] = useState(gameState === "readFortune" ? Number.parseInt(storedFortune) : null)
 
-  console.log(gameState, "gameState")
   const onInnerFlapClick = useCallback((e) => {
     if(gameState === "pickFirstNumber"){
       setCountdownNumber(Number.parseInt(e.target.innerText))
       setGameState("countdownToFortune")
     } else if(gameState === "pickYourFortune"){
-      setFortuneNumber(Number.parseInt(e.target.innerText))
+      const n = Number.parseInt(e.target.innerText)
+      setFortuneNumber(n)
       setGameState("readFortune")
+      localStorage.setItem("fortuneNumber", n)
+
+      localStorage.setItem("storedTomorrow", tomorrow().getTime())
       setCatcherOpenness("closed")
     }
    
@@ -34,24 +41,24 @@ function App() {
   const moveTheCatcher = () => {
     if(catcherOpenness === "closed"){
       setCatcherOpenness("open")
+      if(gameState === "spellColor"){
+        if(colorSpellingIndex >= color.length - 1){
+          setGameState("pickFirstNumber")
+          setCatcherOpenness("open")
+        } else {
+          setColorSpellingIndex(i => i + 1)
+        }
+      } else if(gameState === "countdownToFortune"){
+        
+        setCountdownNumber(n => n - 1)
+        if(countdownNumber <= 1){
+          setGameState("pickYourFortune")
+          setCatcherOpenness("open")
+        }
+      }
     } else {
       setOpennessDirection(d => d === "vertical" ? "horizontal" : "vertical")
       setCatcherOpenness("closed")
-    }
-    if(gameState === "spellColor"){
-      if(colorSpellingIndex >= color.length - 1){
-        setGameState("pickFirstNumber")
-        setCatcherOpenness("open")
-      } else {
-        setColorSpellingIndex(i => i + 1)
-      }
-    } else if(gameState === "countdownToFortune"){
-      
-      setCountdownNumber(n => n - 1)
-      if(countdownNumber <= 1){
-        setGameState("pickYourFortune")
-        setCatcherOpenness("open")
-      }
     }
     
 
@@ -59,8 +66,6 @@ function App() {
 
   const colorSpellingText = useMemo(() => {
     if(!color) { return null }
-    // console.log("color.toUpperCase().split('')", color.toUpperCase().split(""))
-    console.log("colorSpellingIndex in mem", colorSpellingIndex)
     return <div>
       {color.toUpperCase().split("").map((char, i) => {
         return <span
@@ -75,7 +80,7 @@ function App() {
   const moveButtonText = useMemo(() => {
     if(color === null){
       return "Pick A Color"
-    } else if (gameState === "spellColor") {
+    } else if (gameState === "spellColor" || (gameState === "pickAColor" && color)) {
       return colorSpellingText
     } else if (gameState === "countdownToFortune"){
       return countdownNumber
@@ -85,7 +90,7 @@ function App() {
       return "Pick A Number"
     }
     return color.toUpperCase()
-  }, [color, gameState, colorSpellingIndex, countdownNumber])
+  }, [color, gameState, countdownNumber, colorSpellingText])
 
   const onOuterFlapMouseEnter = (color) => () => {
     if(gameState === "pickAColor"){
@@ -106,13 +111,13 @@ function App() {
 
   const cssColor = () => {
     if(color === "blue"){
-      return "skyblue"
+      return "dodgerblue"
     } else if(color === "green"){
       return "limegreen"
     } else if(color === "pink"){
       return "violet"
     } else {
-       return color
+       return "darkorange"
     }
   }
 
@@ -176,7 +181,7 @@ function App() {
           </div>
         </div>
       </div>
-      {gameState === "readFortune" ? <Fortune fortuneNumber={fortuneNumber} /> :
+      {gameState === "readFortune" ? <Fortune fortuneNumber={fortuneNumber} cssColor={cssColor()} /> :
       
       <button
         onClick={moveTheCatcher}
@@ -191,11 +196,15 @@ function App() {
   );
 }
 
+function tomorrow(){
+  let t = new Date();
+  t.setDate(t.getDate() + 1);
+  t.setHours(0,0,0,0);
+  return t
+}
 
-function Fortune({fortuneNumber}){
-  let tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0,0,0,0);
+function Fortune({fortuneNumber, cssColor}){
+  
 
   const fortunes = [
     "A positive surprise is heading your way",
@@ -207,26 +216,33 @@ function Fortune({fortuneNumber}){
     "It's okay to treat yourself",
     "Don't try to control, be in the flow"
   ]
-  return <div>
-    <h6>
-      The Fortune for {fortuneNumber}:
-    </h6>
-    <div className='fortune-text'>
+  return <div
+  style={{color: cssColor}}
+    className='fortune-container'>
+    {/* <h4
+      style={{color: cssColor}}
+    >
+      {fortuneNumber}
+    </h4> */}
+    <div
+      className='fortune-text'>
       {fortunes[fortuneNumber - 1]}
     </div>
     <div>
       Only one fortune a day, to keep it lucky
     </div>
-    <div>
-      Tomorrow begins in <Countdown time={tomorrow}/>
+    <div className='countdown-to-tomorrow'>
+      Tomorrow begins in <Countdown time={tomorrow()}/>
+    </div>
+
+    <div className='credit'>
+      A website by Triqueue
     </div>
   </div>
 }
 
-function Countdown(time){
+function Countdown({time}){
   const [diff, setDiff] = useState(time - new Date());
-
-  console.log(diff)
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -234,11 +250,11 @@ function Countdown(time){
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [time]);
 
   const hours = Math.floor(diff / (3600000))
   const minutes = Math.floor(diff % (3600000)  / 60000)
-  const seconds = Math.floor(diff % (3600000)  / 1000)
+  const seconds = Math.floor(diff% (60000) / 1000)
   return `${hours} hours ${minutes} minutes & ${seconds} seconds`
 }
 

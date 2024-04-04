@@ -10,7 +10,8 @@
   flex-direction: column;
   gap: 40px;
   width: 100vw;
-  background: #F2DCA2;
+  /* background: #F2DCA2; */
+  background-color: lavender;
 }
 button {
   font-family: system-ui, sans-serif;
@@ -133,7 +134,7 @@ button:disabled {
 }
 
 .outer-flap.top-left {
-  background: orange  ;
+  background: darkorange  ;
 }
 
 .top-right {
@@ -141,7 +142,7 @@ button:disabled {
 }
 
 .outer-flap.top-right {
-  background: skyblue;
+  background: dodgerblue;
 }
 
 .bottom-left {
@@ -176,4 +177,38 @@ button:disabled {
   filter: brightness(110%) saturate(120%);
   cursor: pointer;
   z-index: 1000;
+}
+
+.fortune-text {
+  font-size: 50px;
+  margin: 20px;
+}
+
+.countdown-to-tomorrow {
+  font-size: 13px;
+  /* color: rgba(280,280,280,0.7); */
+  margin-top: 6.6px;
+}
+
+h4 {
+  font-size: 30px;
+  margin: 10px;
+}
+
+.fortune-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: rgba(280,280,280);
+  width: 600px;
+  text-align: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  padding-bottom: 40px;
+}
+
+.credit {
+  position: absolute;
+  bottom: 15px;
 }
