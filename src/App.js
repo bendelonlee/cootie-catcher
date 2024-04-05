@@ -7,6 +7,9 @@ function App() {
 
   const preventNewFortune = storedTomorrow && new Date().getTime() < Number.parseInt(storedTomorrow)
 
+  // gamestates, in order:
+  // pickAColor,spellColor, pickFirstNumber,
+  // countdownToFortune, pickYourFortune, readFortune
   const [gameState, setGameState] = useState((preventNewFortune) ? "readFortune" : "pickAColor") 
   const [color, setColor] = useState(null)
   const [catcherOpenness, setCatcherOpenness] = useState("closed")
@@ -15,22 +18,6 @@ function App() {
   const [countdownNumber, setCountdownNumber] = useState(null)
   const [fortuneNumber, setFortuneNumber] = useState(gameState === "readFortune" ? Number.parseInt(storedFortune) : null)
 
-  const onInnerFlapClick = useCallback((e) => {
-    if(gameState === "pickFirstNumber"){
-      setCountdownNumber(Number.parseInt(e.target.innerText))
-      setGameState("countdownToFortune")
-    } else if(gameState === "pickYourFortune"){
-      const n = Number.parseInt(e.target.innerText)
-      setFortuneNumber(n)
-      setGameState("readFortune")
-      localStorage.setItem("fortuneNumber", n)
-
-      localStorage.setItem("storedTomorrow", tomorrow().getTime())
-      setCatcherOpenness("closed")
-    }
-   
-  }, [gameState])
-
   const innerflapHighlightCss = useMemo(() => {
     if(gameState === "pickFirstNumber" || gameState === "pickYourFortune"){
       return "clickable"
@@ -38,7 +25,7 @@ function App() {
     return ""
   }, [gameState])
 
-  const moveTheCatcher = () => {
+  const moveTheCatcher = useCallback(() => {
     if(catcherOpenness === "closed"){
       setCatcherOpenness("open")
       if(gameState === "spellColor"){
@@ -62,7 +49,7 @@ function App() {
     }
     
 
-  }
+  }, [catcherOpenness, color, colorSpellingIndex, countdownNumber, gameState])
 
   const colorSpellingText = useMemo(() => {
     if(!color) { return null }
@@ -92,18 +79,44 @@ function App() {
     return color.toUpperCase()
   }, [color, gameState, countdownNumber, colorSpellingText])
 
+
+  const isCatcherMoving = useMemo(() => {
+    return (gameState === "countdownToFortune" || gameState === "spellColor") 
+   }, [gameState])
+ 
   const onOuterFlapMouseEnter = (color) => () => {
     if(gameState === "pickAColor"){
       setColor(color)
-    } 
+    } if(isCatcherMoving){
+      // TODO: add shadow maybe here
+      // you would think this could be done with css :hover, but the layering makes it tricky
+
+    }
   }
 
   const onOuterFlapClick = () => {
     if(gameState === "pickAColor"){
       setGameState("spellColor")
-    } 
+    }
   }
-  const onOuterFlapMousLeave = () => {
+
+  const onInnerFlapClick = useCallback((e) => {
+    if(gameState === "pickFirstNumber"){
+      setCountdownNumber(Number.parseInt(e.target.innerText))
+      setGameState("countdownToFortune")
+    } else if(gameState === "pickYourFortune"){
+      const n = Number.parseInt(e.target.innerText)
+      setFortuneNumber(n)
+      setGameState("readFortune")
+      localStorage.setItem("fortuneNumber", n)
+
+      localStorage.setItem("storedTomorrow", tomorrow().getTime())
+      setCatcherOpenness("closed")
+    }
+   
+  }, [gameState])
+
+  const onOuterFlapMouseLeave = () => {
     if(gameState === "pickAColor"){
       setColor(null)
     } 
@@ -124,33 +137,33 @@ function App() {
   return (
     <div className="App">
        <div className={`cootie-catcher ${catcherOpenness} ${opennessDirection}`}>
-        <div className="outer-flaps">
+        <div className="outer-flaps" onClick={() => {if(isCatcherMoving) moveTheCatcher()}}>
           <div
             onClick={onOuterFlapClick}
             onMouseEnter={onOuterFlapMouseEnter("orange")}
-            onMouseLeave={onOuterFlapMousLeave}
+            onMouseLeave={onOuterFlapMouseLeave}
             className={`outer-flap top-left ${gameState === "pickAColor" ? "clickable" : ""}`}
           />
           <div
             onClick={onOuterFlapClick}
             onMouseEnter={onOuterFlapMouseEnter("blue")}
-            onMouseLeave={onOuterFlapMousLeave}
+            onMouseLeave={onOuterFlapMouseLeave}
             className={`outer-flap top-right ${gameState === "pickAColor" ? "clickable" : ""}`}
           />
           <div
             onClick={onOuterFlapClick}
             onMouseEnter={onOuterFlapMouseEnter("green")}
-            onMouseLeave={onOuterFlapMousLeave}
+            onMouseLeave={onOuterFlapMouseLeave}
             className={`outer-flap bottom-left ${gameState === "pickAColor" ? "clickable" : ""}`}
           />
           <div
             onClick={onOuterFlapClick}
             onMouseEnter={onOuterFlapMouseEnter("pink")}
-            onMouseLeave={onOuterFlapMousLeave}
+            onMouseLeave={onOuterFlapMouseLeave}
             className={`outer-flap bottom-right ${gameState === "pickAColor" ? "clickable" : ""}`}
           />
         </div>
-        <div className="inner-flaps">
+        <div className="inner-flaps" onClick={() => {if(isCatcherMoving) moveTheCatcher()}}>
           <div
               onClick={onInnerFlapClick}
               className={`inner-flap top-left ${innerflapHighlightCss}`}>

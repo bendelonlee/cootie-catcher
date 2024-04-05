@@ -67,14 +67,14 @@ button:disabled {
 }
 
 .inner-flaps {
-  height: 100%;
+  height: 97%;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  height:  80%;
+  height:  78%;
   width: 80%;
   position: relative;
-  top: -181px;
+  top: -178px;
   left: 20px;
   
 }
