@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useMemo, useCallback, useEffect } from "react"
+import ReactGA from 'react-ga4'
 
 function App() {
   const storedFortune = localStorage.getItem("fortuneNumber")
@@ -96,6 +97,7 @@ function App() {
 
   const onOuterFlapClick = () => {
     if(gameState === "pickAColor"){
+      ReactGA.event("fortune_started", { color })
       setGameState("spellColor")
     }
   }
@@ -106,6 +108,7 @@ function App() {
       setGameState("countdownToFortune")
     } else if(gameState === "pickYourFortune"){
       const n = Number.parseInt(e.target.innerText)
+      ReactGA.event("fortune_completed", { fortune_number: n })
       setFortuneNumber(n)
       setGameState("readFortune")
       localStorage.setItem("fortuneNumber", n)
@@ -113,7 +116,7 @@ function App() {
       localStorage.setItem("storedTomorrow", tomorrow().getTime())
       setCatcherOpenness("closed")
     }
-   
+
   }, [gameState])
 
   const onOuterFlapMouseLeave = () => {
