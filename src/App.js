@@ -138,7 +138,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App" onClick={() => { if(gameState === "countdownToFortune") moveTheCatcher() }}>
        <div className={`cootie-catcher ${catcherOpenness} ${opennessDirection}`}>
         <div className="outer-flaps" onClick={() => {if(isCatcherMoving) moveTheCatcher()}}>
           <div
